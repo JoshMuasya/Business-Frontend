@@ -19,18 +19,30 @@ module.exports = {
         'buttontext': '#6BA4D9',
         'thistle': '#D9D9D9',
         'errors': '#FF0000',
+        'gray': '#A9A9A9',
+        'lightgray': '#E5E4E2',
+        'darkgray': '#808080',
       },
       fontSize : {
         'xs': '12px',
+        'sm': '16px',
         's': '20px',
         'm': '24px',
         'ml': '30px',
+        'mxl': '35px',
         'l': '40px',
         'xl': '50px',
       },
       fontFamily: {
         'kalam': 'Kalam, cursive',
         'quicksand': 'Quicksand, sans-serif',
+      },
+      screens: {
+        'sm': '640px',
+        'md': '768px',
+        'l': '1024px',
+        'xl': '1280px',
+        '2xl': '1536px'
       }
     },
   },
