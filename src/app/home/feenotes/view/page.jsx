@@ -37,7 +37,7 @@ const page = () => {
         {data.map((feenote, index) => (
           <div 
             className='flex flex-col sm:flex-row justify-center items-center align-middle sm:pb-3 md:pb-8'
-            key={index}
+            key={feenote.id}
           >
             {/* Feenotes */}
             <div className='flex flex-col mb-5 sm:mb-0 sm:mr-5 md:mr-8 p-3 h-fit w-fit bg-thistle rounded-xl '>
