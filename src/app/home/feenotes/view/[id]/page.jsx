@@ -1,8 +1,10 @@
 "use client"
 
 import React, { useState, useEffect } from 'react'
-
 import Link from 'next/link';
+import jsPDF from 'jspdf'
+
+import logo from '../../../../../../public/Logo.png'
 
 const ViewFeenote = ({ params }) => {
 
@@ -58,6 +60,42 @@ const ViewFeenote = ({ params }) => {
 
   // Date Created
   const date_created = selectedItem ? selectedItem.created_at : '';
+
+  // Generate PDF
+  const pdfGenerate  = () => {
+    const pdf = new jsPDF()
+
+    const pdfImage = logo
+    const pdfTitle = "DIGIMATIC MARKETERS"
+    const pdfAddress = "Westlands Commercial Center \n wwww.digimaticmarketers.com \n info@digimaticmarketers.com \n +254 798 040 353"
+
+    const pageWidth = pdf.internal.pageSize.width;
+    const imageWidth = 30;
+    // const xposition = (pageWidth - imageWidth) / 2;
+
+    pdf.setFontSize(18)
+    // pdf.addImage(pdfImage, 'PNG', xposition, 10, imageWidth, 30);
+    pdf.text(105, 20, `Generated Feenote for ${pdfTitle}`, null, null, 'center');
+
+    pdf.setFontSize(14);
+    pdf.setFont('italic');
+    pdf.text(105, 30, `${pdfAddress}`, null, null, 'center');
+    pdf.setFont('normal');
+
+    // Details
+    pdf.setFontSize(12);
+    pdf.text(10, 60, `Company Name: ${company_name}`);
+    pdf.text(10, 70, `Company Address: ${company_address}`);
+    pdf.text(10, 80, `Feenote Number: ${feenote_number}`);
+    pdf.text(10, 90, `Customer Name: ${customer_name}`);
+    pdf.text(10, 100, `Transaction Detail: ${reference}`);
+    pdf.text(10, 110, `Total Amount: ${total_amount} | Amount Paid: ${amount_paid} | Balance: ${balance}`);
+    pdf.text(10, 120, `Payment Details: ${payment_details}`);
+    pdf.text(10, 140, `Sign Off: ${sign_off}`);
+    pdf.text(10, 150, `Date Created: ${date_created}`);
+
+    pdf.save(`${company_name}.pdf`);
+  }
 
   return (
     <div className='w-full mt-28 mb-7 p-5 flex flex-col justify-center align-middle items-center text-center'>
@@ -188,24 +226,23 @@ const ViewFeenote = ({ params }) => {
             href=""
             className='bg-buttontext text-buttonback hover:bg-buttonback hover:text-buttontext font-kalam text-xs px-5 py-2 rounded-2xl'
           >
-            Update
-          </Link>
-
-          {/* Delete */}
-          <Link
-            href=""
-            className='bg-buttontext text-buttonback hover:bg-buttonback hover:text-buttontext font-kalam text-xs px-5 py-2 rounded-2xl'
-          >
-            Delete
+            Record New Payment
           </Link>
 
           {/* Print */}
-          <Link
+          <button
+            onClick={pdfGenerate}
+            className='bg-buttontext text-buttonback hover:bg-buttonback hover:text-buttontext font-kalam text-xs px-5 py-2 rounded-2xl'
+          >
+            Print
+          </button>
+
+          {/* <Link
             href=""
             className='bg-buttontext text-buttonback hover:bg-buttonback hover:text-buttontext font-kalam text-xs px-5 py-2 rounded-2xl'
           >
             Print
-          </Link>
+          </Link> */}
         </div>
       </div>
     </div>    
