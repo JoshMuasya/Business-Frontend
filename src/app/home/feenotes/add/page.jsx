@@ -1,12 +1,7 @@
 "use client"
 
-import React, { forwardRef, useState } from 'react';
+import React, { forwardRef, useEffect, useState } from 'react';
 
-import BusinessIcon from '@mui/icons-material/Business';
-import LocationCityIcon from '@mui/icons-material/LocationCity';
-import NumbersIcon from '@mui/icons-material/Numbers';
-import PersonIcon from '@mui/icons-material/Person';
-import InfoIcon from '@mui/icons-material/Info';
 import PaidIcon from '@mui/icons-material/Paid';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import CardMembershipIcon from '@mui/icons-material/CardMembership';
@@ -17,18 +12,60 @@ import MuiAlert from '@mui/material/Alert';
 
 const page = () => {
 
-  const [company_name, setcompany_name] = useState('');
-  const [company_address, setcompany_address] = useState('');
-  const [feenote_number, setfeenote_number] = useState('');
-  const [customer_name, setcustomer_name] = useState('');
-  const [reference, setreference] = useState('');
-  const [total_amount, settotal_amount] = useState('');
+  const [amount, setamount] = useState('');
   const [amount_paid, setamount_paid] = useState('');
   const [payment_details, setpayment_details] = useState('');
   const [sign_off, setsign_off] = useState('');
 
+  const [customers, setCustomers] = useState([]);
+  const [customer, setCustomer] = useState('');
+
+  const [payments, setPayments] = useState([]);
+  const [matchingCustomers, setMatchingCustomers] = useState([]);
+  const foundCustomer = []
+
   const [open, setOpen] = useState(false);
   const [responseStatus, setResponseStatus] = useState(null);
+
+  useEffect(() => {
+    fetch('http://127.0.0.1:8000/customer/')
+    .then(response => response.json())
+    .then(data => setCustomers(data))
+    .catch(error => console.error('Error fetching customers details:', error));
+
+    // Fetch payments
+    fetch('http://127.0.0.1:8000/payment/')
+    .then(response => response.json())
+    .then(data => {
+      setPayments(data);
+    })
+    .catch(error => console.error('Error fetching Payments details:', error));
+  }, []);
+
+  const customersArray = payments.map(payment => payment.customer)
+
+  const isCustomer = customersArray.includes(parseInt(customer))
+
+  if (isCustomer) {
+
+    payments.forEach(item => {
+      if (item.customer === parseInt(customer)) {
+        foundCustomer.push(item)
+      }
+    })
+
+    const latestPayment = foundCustomer.reduce((latest, payment) => {
+      if (new Date(payment.created_at) > new Date(latest.created_at)) {
+        return payment
+      }
+      return latest
+    }, foundCustomer[0])
+
+    console.log(foundCustomer)
+    console.log(latestPayment.amount)
+  } else {
+    console.log('Not Found')
+  }
 
   const Alert = forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant='filled' {...props} />;
@@ -39,10 +76,10 @@ const page = () => {
     setOpen(true);
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/feenote/', {
+      const response = await fetch('http://127.0.0.1:8000/payment/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ company_name, company_address, feenote_number, customer_name, reference, total_amount, amount_paid, payment_details, sign_off })
+        body: JSON.stringify({ customer, amount, amount_paid, payment_details, sign_off })
       });
 
       if (response.ok) {
@@ -69,7 +106,7 @@ const page = () => {
     <div className='flex flex-col justify-center align-middle items-center'>
       {/* Title */}
       <div className='mt-28 p-6 text-center font-kalam text-s md:text-m l:text-ml font-semibold'>
-        ADD FEENOTE
+        RECORD PAYMENT
       </div>
 
       {/* Body */}
@@ -105,103 +142,30 @@ const page = () => {
           onSubmit={handleAdd} 
           className="p-5 sm:p-7 flex flex-col justify-center align-middle items-center"
         >
-          <div className="relative mb-4 sm:mb-6 w-4/5">
-            {/* Company Name */}
-            <div className="absolute inset-y-0 left-0 flex items-center pl-2 sm:pl-3 pointer-events-none">
-              <BusinessIcon 
-                aria-hidden="true"
-                className="w-5 h-5 text-gray"
-                fill="currentColor"
-              />
-            </div>
-            
-            <input 
-              type="text" 
-              id="companyname" 
-              className="dark:text-gray-900 text-xs sm:text-sm rounded-lg focus:ring-blue-500 block w-full pl-8 sm:pl-10 p-2 sm:p-2.5 border-darkgray placeholder-gray text-gray" 
-              placeholder="Company Name"
-              value = {company_name}
-              onChange={(e) => setcompany_name(e.target.value)}
-            />
-          </div>
+          {/* Customer Dropdown */}
+          <select 
+            className="dark:text-gray-900 text-xs sm:text-sm rounded-lg focus:ring-blue-500 block w-full pl-10 sm:pl-10 p-2 sm:p-2.5 border-darkgray placeholder-gray text-gray mb-4 sm:mb-6" 
+            id="customer"
+            value={customer}
+            onChange={(e) => setCustomer(e.target.value)}
+          >
+            {/* Title */}
+            <option
+              value=''
+            >
+              Select a Customer
+            </option>
 
-          {/* Company Address */}
-          <div className="relative mb-4 sm:mb-6 w-4/5">
-            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-              <LocationCityIcon 
-                aria-hidden="true"
-                className="w-5 h-5 text-gray"
-                fill="currentColor"
-              />
-            </div>
-
-            <textarea 
-              id="companyaddress" 
-              className="dark:text-gray-900 text-xs sm:text-sm rounded-lg focus:ring-blue-500 block w-full pl-10 sm:pl-10 p-2 sm:p-2.5 border-darkgray placeholder-gray text-gray" 
-              placeholder="Company Address"
-              value={company_address}           
-              onChange={(e) => setcompany_address(e.target.value)}
-            />
-          </div>
-
-          {/* FeeNote Number */}
-          <div className="relative mb-4 sm:mb-6 w-4/5">
-            <div className="absolute inset-y-0 left-0 flex items-center pl-2 sm:pl-3 pointer-events-none">
-              <NumbersIcon 
-                aria-hidden="true"
-                className="w-5 h-5 text-gray"
-                fill="currentColor"
-              />
-            </div>
-            
-            <input 
-              type="text" 
-              id="feenotenumber" 
-              className="dark:text-gray-900 text-xs sm:text-sm rounded-lg focus:ring-blue-500 block w-full pl-8 sm:pl-10 p-2 sm:p-2.5 border-darkgray placeholder-gray text-gray" 
-              placeholder="Feenote Number" 
-              value={feenote_number}
-              onChange={(e) => setfeenote_number(e.target.value)}
-            />
-          </div>
-
-          {/* Customer Name */}
-          <div className="relative mb-4 sm:mb-6 w-4/5">
-            <div className="absolute inset-y-0 left-0 flex items-center pl-2 sm:pl-3 pointer-events-none">
-              <PersonIcon
-                aria-hidden="true"
-                className="w-5 h-5 text-gray"
-                fill="currentColor"
-              />
-            </div>
-            
-            <input 
-              type="text" 
-              id="customername" 
-              className="dark:text-gray-900 text-xs sm:text-sm rounded-lg focus:ring-blue-500 block w-full pl-8 sm:pl-10 p-2 sm:p-2.5 border-darkgray placeholder-gray text-gray" 
-              placeholder="Customer Name" 
-              value={customer_name}
-              onChange={(e) => setcustomer_name(e.target.value)}              
-            />
-          </div>
-
-          {/* Feenote Details */}
-          <div className="relative mb-4 sm:mb-6 w-4/5">
-            <div className="absolute inset-y-0 left-0 flex items-center pl-2 sm:pl-3 pointer-events-none">
-              <InfoIcon
-                aria-hidden="true"
-                className="w-5 h-5 text-gray"
-                fill="currentColor"
-              />
-            </div>
-            
-            <textarea 
-              id="details" 
-              className="dark:text-gray-900 text-xs sm:text-sm rounded-lg focus:ring-blue-500 block w-full pl-10 sm:pl-10 p-2 sm:p-2.5 border-darkgray placeholder-gray text-gray" 
-              placeholder="Feenote Details" 
-              value={reference}
-              onChange={(e) => setreference(e.target.value)}              
-            />
-          </div>
+            {/* Select */}
+            {customers.map(customer => (
+              <option 
+                key={customer.id}
+                value={customer.id}
+              >
+                {customer.first_name} {customer.last_name}
+              </option>
+            ))}
+          </select>
 
           {/* Amount */}
           <div className='flex flex-row justify-between align-middle'>
@@ -220,8 +184,8 @@ const page = () => {
                 id="totalamount" 
                 className="dark:text-gray-900 text-xs sm:text-sm rounded-lg focus:ring-blue-500 block w-full pl-8 sm:pl-10 p-2 sm:p-2.5 border-darkgray placeholder-gray text-gray" 
                 placeholder="Total Amount" 
-                value={total_amount}
-                onChange={(e) => settotal_amount(e.target.value)}                
+                value=''
+                onChange={(e) => setamount(e.target.value)}
               />
             </div>
 

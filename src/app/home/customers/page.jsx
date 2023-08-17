@@ -60,7 +60,7 @@ const page = () => {
         <div className='flex flex-col md:flex-row w-3/4 md:w-full h-3/5 justify-around align-middle items-center'>
           {/* Left */}
           <Link 
-            href=""
+            href="/home/customers/update"
             className='flex flex-col justify-center align-middle items-center bg-thistle hover:bg-buttontext rounded-xl md:rounded-2xl l:rounded-3xl h-fit w-48 md:w-56 l:w-64 p-6 mb-3 md:mb-0 text-s hover:text-sm'>
             {/* Title */}
             <div className='text-backblack hover:text-buttonback font-kalam font-bold'>
@@ -78,7 +78,7 @@ const page = () => {
           {/* Right */}
           <div className=''>
             <Link
-              href="" 
+              href="/home/customers/delete" 
               className='flex flex-col justify-center align-middle items-center bg-thistle hover:bg-buttontext rounded-xl md:rounded-2xl l:rounded-3xl h-fit w-48 md:w-56 l:w-64 p-6 mb-3 md:mb-0 text-s hover:text-sm'>
               {/* Title */}
               <div className='text-backblack hover:text-buttonback font-kalam font-bold'>

@@ -84,7 +84,7 @@ const UpdateCustomer = ({ params }) => {
     <div className='flex flex-col justify-center align-middle items-center'>
       {/* Title */}
       <div className='mt-28 p-6 text-center font-kalam text-s md:text-m l:text-ml font-semibold'>
-        UPDATE CUSTOMER
+        UPDATE CLIENT
       </div>
 
       {/* Body */}

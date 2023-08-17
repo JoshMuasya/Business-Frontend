@@ -39,7 +39,7 @@ const page = () => {
     <div className='w-full mt-28 p-5 flex flex-col justify-center align-middle items-center text-center'>
       {/* Title */}
       <div className='font-kalam font-bold text-m pb-8'>
-        VIEW CLIENTS
+        UPDATE CLIENTS
       </div>
 
       {/* Body */}
