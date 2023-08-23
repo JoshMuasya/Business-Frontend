@@ -19,13 +19,16 @@ const page = () => {
 
   const [customers, setCustomers] = useState([]);
   const [customer, setCustomer] = useState('');
+  const [customerName, setCustomerName] = useState('');
 
   const [payments, setPayments] = useState([]);
-  const [matchingCustomers, setMatchingCustomers] = useState([]);
-  const foundCustomer = []
+  
+  const [latestBalance, setLatestBalance] = useState(0)
 
   const [open, setOpen] = useState(false);
   const [responseStatus, setResponseStatus] = useState(null);
+
+  const [showPrintButton, setShowPrintButton] = useState(false);
 
   useEffect(() => {
     fetch('http://127.0.0.1:8000/customer/')
@@ -46,26 +49,31 @@ const page = () => {
 
   const isCustomer = customersArray.includes(parseInt(customer))
 
-  if (isCustomer) {
+  useEffect(() => {
+    if (isCustomer) {
+      const foundCustomer = payments.filter(item => item.customer === parseInt(customer));
 
-    payments.forEach(item => {
-      if (item.customer === parseInt(customer)) {
-        foundCustomer.push(item)
+      if (foundCustomer.length > 0) {
+        const latestPayment = foundCustomer.reduce((latest, payment) => {
+          if (new Date(payment.created_at) > new Date(latest.created_at)) {
+            return payment;
+          }
+          return latest;
+        }, foundCustomer[0]);
+
+        setamount(latestPayment.balance)
+        setLatestBalance(latestPayment.balance)
+        setShowPrintButton(true);
+      } else {
+        setamount('')
+        setLatestBalance(0)
+        console.log("Not Found")
+        setShowPrintButton(false)
       }
-    })
+    }
+  }, [isCustomer, payments, customer]);
 
-    const latestPayment = foundCustomer.reduce((latest, payment) => {
-      if (new Date(payment.created_at) > new Date(latest.created_at)) {
-        return payment
-      }
-      return latest
-    }, foundCustomer[0])
-
-    console.log(foundCustomer)
-    console.log(latestPayment.amount)
-  } else {
-    console.log('Not Found')
-  }
+  console.log(amount)
 
   const Alert = forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant='filled' {...props} />;
@@ -94,6 +102,8 @@ const page = () => {
     }
   }
 
+  console.log(customerName)
+
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
@@ -106,7 +116,7 @@ const page = () => {
     <div className='flex flex-col justify-center align-middle items-center'>
       {/* Title */}
       <div className='mt-28 p-6 text-center font-kalam text-s md:text-m l:text-ml font-semibold'>
-        RECORD PAYMENT
+        RECORD PAYMENTS
       </div>
 
       {/* Body */}
@@ -143,28 +153,42 @@ const page = () => {
           className="p-5 sm:p-7 flex flex-col justify-center align-middle items-center"
         >
           {/* Customer Dropdown */}
-          <select 
+          <input 
             className="dark:text-gray-900 text-xs sm:text-sm rounded-lg focus:ring-blue-500 block w-full pl-10 sm:pl-10 p-2 sm:p-2.5 border-darkgray placeholder-gray text-gray mb-4 sm:mb-6" 
             id="customer"
+            placeholder='Search for a Customer'
             value={customer}
             onChange={(e) => setCustomer(e.target.value)}
-          >
-            {/* Title */}
-            <option
-              value=''
-            >
-              Select a Customer
-            </option>
+          />
 
-            {/* Select */}
-            {customers.map(customer => (
-              <option 
-                key={customer.id}
-                value={customer.id}
-              >
-                {customer.first_name} {customer.last_name}
-              </option>
-            ))}
+          {/* Dropdown */}
+          <select
+            className="dark:text-gray-900 text-xs sm:text-sm rounded-lg focus:ring-blue-500 block w-full pl-10 sm:pl-10 p-2 sm:p-2.5 border-darkgray placeholder-gray text-gray mb-4 sm:mb-6"
+            id="customer"
+            value={customer}
+            onChange={
+              (e) => {
+                setCustomer(e.target.value);
+                const selectedCustomer = customers.find(customerObj => customerObj.id === parseInt(e.target.value));
+                if (selectedCustomer) {
+                  setCustomerName(selectedCustomer.first_name);
+                } else {
+                  setCustomerName('')
+                }
+              }
+            }
+          >
+            <option value=''>{customerName ? customerName : 'Select a Customer'}</option>
+            {customers
+              .filter(customerObj => {
+                const firstName = `${customerObj.first_name}`
+                return firstName.toLowerCase().includes(customer.toLowerCase())
+              })
+              .map(customerObj => (
+                <option key={customerObj.id} value={customerObj.id}>
+                  {customerObj.first_name} {customerObj.last_name}
+                </option>
+              ))}
           </select>
 
           {/* Amount */}
@@ -184,8 +208,9 @@ const page = () => {
                 id="totalamount" 
                 className="dark:text-gray-900 text-xs sm:text-sm rounded-lg focus:ring-blue-500 block w-full pl-8 sm:pl-10 p-2 sm:p-2.5 border-darkgray placeholder-gray text-gray" 
                 placeholder="Total Amount" 
-                value=''
+                value={amount}
                 onChange={(e) => setamount(e.target.value)}
+                disabled = {latestBalance !== 0 && latestBalance !== null}
               />
             </div>
 
@@ -248,7 +273,7 @@ const page = () => {
             />
           </div>
 
-          <div className="pt-4 sm:pt-6">
+          <div className="w-full pt-4 sm:pt-6 flex flex-col sm:flex-row justify-around">
             <button 
               type="submit"
               className=
@@ -257,6 +282,18 @@ const page = () => {
                 ADD
               </p>
             </button>
+
+            {/* Print Button */}
+            {showPrintButton && (
+              <button 
+                type="submit"
+                className=
+                "bg-backblack text-white rounded-md sm:rounded-xl h-fit w-fit duration-300 hover:bg-buttontext hover:text-buttonback hover:duration-300">
+                <p className="font-quicksand font-semibold text-sm sm:text-m px-14 py-1">
+                  PRINT
+                </p>
+              </button>
+            )}
           </div>
         </form>
       </div>

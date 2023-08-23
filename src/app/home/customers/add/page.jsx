@@ -2,6 +2,8 @@
 
 import React, { forwardRef, useState } from 'react';
 
+import Link from 'next/link';
+
 import PersonIcon from '@mui/icons-material/Person';
 import EmailIcon from '@mui/icons-material/Email';
 import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
@@ -18,6 +20,8 @@ const page = () => {
   const [last_name, setlast_name] = useState('');
   const [email, setemail] = useState('');
   const [phone_number, setphone_number] = useState('');
+
+  const [showAddPaymentButton, setShowAddPaymentButton] = useState(false)
 
   const Alert = forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant='filled' {...props} />;
@@ -38,7 +42,10 @@ const page = () => {
         console.log('Customer Added')
         console.log(response.ok)
         setResponseStatus(response.ok)
+        setShowAddPaymentButton(true)
       } else {
+        setResponseStatus(null)
+        setShowAddPaymentButton(false)
         console.log('Failed')
       }
     } catch (error) {
@@ -173,7 +180,7 @@ const page = () => {
             />
           </div>
 
-          <div className="pt-4 sm:pt-6">
+          <div className="w-full pt-4 sm:pt-6 flex flex-col sm:flex-row justify-around">
             <button 
               type="submit"
               className=
@@ -182,6 +189,17 @@ const page = () => {
                 ADD
               </p>
             </button>
+
+            {showAddPaymentButton && (
+              <Link
+                href="/home/feenotes/add"
+                className=
+                "bg-backblack text-white rounded-md sm:rounded-xl h-fit w-fit duration-300 hover:bg-buttontext hover:text-buttonback hover:duration-300">
+                <p className="font-quicksand font-semibold text-sm sm:text-m px-14 py-1">
+                  RECORD PAYMENT
+                </p>
+              </Link>
+            )}
           </div>
         </form>
       </div>
