@@ -8,58 +8,46 @@ import logo from '../../../../../../public/Logo.png'
 
 const ViewFeenote = ({ params }) => {
 
-  const [data, setData] = useState([]);
+  const [paymentData, setPaymentData] = useState([]);
+  const [customerData, setCustomerData] = useState([]);
 
   const { id } = params;
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchPaymentData = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/feenote/');
+        const response = await fetch(`http://127.0.0.1:8000/payment/${id}`);
         const jsonData = await response.json();
-        setData(jsonData);
-      } catch {
-        console.error('Error fetching data', data);
+        setPaymentData(jsonData);
+      } catch (error) {
+        console.error('Error fetching data', error);
       }
     };
 
-    fetchData();
-  }, []);
+    fetchPaymentData();
+  }, [id]);
 
-  const selectedItem = data.find(item => item.id === parseInt(id));
+  useEffect(() => {
+    if (paymentData.customer) {
+      const fetchCustomerData = async () => {
+        try {
+          const responseCustomer = await fetch(`http://127.0.0.1:8000/customer/${paymentData.customer}`);
+          const jsonCustomer = await responseCustomer.json();
+          setCustomerData(jsonCustomer);
+        } catch (error) {
+          console.error('Error fetching data', error);
+        }
+      }; 
+      fetchCustomerData();
+    }
+  }, [paymentData]);
 
-  // Company Name
-  const company_name = selectedItem ? selectedItem.company_name : '';
+  console.log(customerData)
 
-  // Company Address
-  const company_address = selectedItem ? selectedItem.company_address : '';
-
-  // Feenote Number
-  const feenote_number = selectedItem ? selectedItem.feenote_number : '';
-
-  // Customer Name
-  const customer_name = selectedItem ? selectedItem.customer_name : '';
-
-  // Transaction Detail
-  const reference = selectedItem ? selectedItem.reference : '';
-
-  // Total Amount
-  const total_amount = selectedItem ? selectedItem.total_amount : '';
-
-  // Amount Paid
-  const amount_paid = selectedItem ? selectedItem.amount_paid : '';
-
-  // Balance
-  const balance = total_amount - amount_paid;
-
-  // Payment Details
-  const payment_details = selectedItem ? selectedItem.payment_details : '';
-
-  // Sign Off
-  const sign_off = selectedItem ? selectedItem.sign_off : '';
-
-  // Date Created
-  const date_created = selectedItem ? selectedItem.created_at : '';
+  function formatDate(dateString) {
+    const options = { year: 'numeric', month: 'short', day: '2-digit' };
+    return new Date(dateString).toLocaleDateString('en-US', options);
+  }
 
   // Generate PDF
   const pdfGenerate  = () => {
@@ -84,75 +72,63 @@ const ViewFeenote = ({ params }) => {
 
     // Details
     pdf.setFontSize(12);
-    pdf.text(10, 60, `Company Name: ${company_name}`);
-    pdf.text(10, 70, `Company Address: ${company_address}`);
-    pdf.text(10, 80, `Feenote Number: ${feenote_number}`);
-    pdf.text(10, 90, `Customer Name: ${customer_name}`);
-    pdf.text(10, 100, `Transaction Detail: ${reference}`);
-    pdf.text(10, 110, `Total Amount: ${total_amount} | Amount Paid: ${amount_paid} | Balance: ${balance}`);
-    pdf.text(10, 120, `Payment Details: ${payment_details}`);
-    pdf.text(10, 140, `Sign Off: ${sign_off}`);
-    pdf.text(10, 150, `Date Created: ${date_created}`);
+    pdf.text(10, 60, `Customer Name: ${customerData.first_name} ${customerData.last_name}`);
+    pdf.text(10, 70, `Email Address: ${customerData.email}`);
+    pdf.text(10, 80, `Phone Number: ${customerData.phone_number}`);
+    pdf.text(10, 90, `Payment Details: ${paymentData.payment_details}`);
+    pdf.text(10, 110, `Total Amount: ${paymentData.amount} | Amount Paid: ${paymentData.amount_paid} | Balance: ${paymentData.balance}`);
+    pdf.text(10, 130, `Payment Date: ${paymentData.created_at}`);
+    pdf.text(10, 150, `Sign Off: ${paymentData.sign_off}`);
 
-    pdf.save(`${company_name}.pdf`);
+    pdf.save(`${customerData.first_name} ${customerData.last_name}.pdf`);
   }
 
   return (
     <div className='w-full mt-28 mb-7 p-5 flex flex-col justify-center align-middle items-center text-center'>
       {/* Title */}
       <div className='font-kalam font-bold text-s sm:text-ml pb-8'>
-        { company_name } Feenote
+        { customerData.first_name } { customerData.last_name } Feenote
       </div>
 
       {/* Body */}
       <div className='w-4/5 sm:w-1/2 h-fit bg-white rounded-xl sm:rounded-3xl flex flex-col align-middle text-center items-center px-5 py-2'>
-        {/* Company Name */}
-        <div className='flex flex-row align-middle items-center text-center text-backblack pb-2'>
-          <h1 className='pr-2 font-quicksand font-extrabold text-sm'>
-            Company Name:
-          </h1>
-          <h3 className='font-kalam text-sx '>
-            { company_name }
-          </h3>
-        </div>
-
-        {/* Company Address */}
-        <div className='flex flex-row align-middle items-center text-center text-backblack pb-2'>
-          <h1 className='pr-2 font-quicksand font-extrabold text-sm'>
-            Company Address:
-          </h1>
-          <h3 className='font-kalam text-sx '>
-            { company_address }
-          </h3>
-        </div>
-
-        {/* Feenote Number */}
-        <div className='flex flex-row align-middle items-center text-center text-backblack pb-2'>
-          <h1 className='pr-2 font-quicksand font-extrabold text-sm'>
-            Feenote Number:
-          </h1>
-          <h3 className='font-kalam text-sx '>
-            { feenote_number }
-          </h3>
-        </div>
-
         {/* Customer Name */}
         <div className='flex flex-row align-middle items-center text-center text-backblack pb-2'>
           <h1 className='pr-2 font-quicksand font-extrabold text-sm'>
             Customer Name:
           </h1>
           <h3 className='font-kalam text-sx '>
-            { customer_name }
+          { customerData.first_name } { customerData.last_name }
+          </h3>
+        </div>
+
+        {/* Email Address */}
+        <div className='flex flex-row align-middle items-center text-center text-backblack pb-2'>
+          <h1 className='pr-2 font-quicksand font-extrabold text-sm'>
+            Email Address:
+          </h1>
+          <h3 className='font-kalam text-sx '>
+            { customerData.email }
+          </h3>
+        </div>
+
+        {/* Phone Number */}
+        <div className='flex flex-row align-middle items-center text-center text-backblack pb-2'>
+          <h1 className='pr-2 font-quicksand font-extrabold text-sm'>
+            Phonenumber:
+          </h1>
+          <h3 className='font-kalam text-sx '>
+            { customerData.phone_number }
           </h3>
         </div>
 
         {/* Details */}
         <div className='flex flex-row align-middle items-center text-center text-backblack pb-2'>
           <h1 className='pr-2 font-quicksand font-extrabold text-sm'>
-            Transaction Details:
+            Payment Details:
           </h1>
           <h3 className='font-kalam text-sx '>
-            { reference }
+            { paymentData.payment_details }
           </h3>
         </div>
 
@@ -161,10 +137,10 @@ const ViewFeenote = ({ params }) => {
           {/* Total Amount */}
           <div className='flex flex-row align-middle items-center text-center text-backblack pb-2 md:pr-2'>
             <h1 className='pr-2 font-quicksand font-extrabold text-sm'>
-              Total Amount:
+              Amount:
             </h1>
             <h3 className='font-kalam text-sx '>
-              { total_amount }
+              { paymentData.amount }
             </h3>
           </div>
 
@@ -174,7 +150,7 @@ const ViewFeenote = ({ params }) => {
               Amount Paid:
             </h1>
             <h3 className='font-kalam text-sx '>
-              { amount_paid }
+              { paymentData.amount_paid }
             </h3>
           </div>
 
@@ -184,18 +160,18 @@ const ViewFeenote = ({ params }) => {
               Balance:
             </h1>
             <h3 className='font-kalam text-sx '>
-              { balance }
+              { paymentData.balance }
             </h3>
           </div>
         </div>
 
-        {/* Payment Details */}
+        {/* Latest Payment Date */}
         <div className='flex flex-row align-middle items-center text-center text-backblack pb-2'>
           <h1 className='pr-2 font-quicksand font-extrabold text-sm'>
-            Payment Details:
+            Payment Date:
           </h1>
           <h3 className='font-kalam text-sx '>
-            { payment_details }
+            { formatDate(paymentData.created_at) }
           </h3>
         </div>
 
@@ -205,25 +181,15 @@ const ViewFeenote = ({ params }) => {
             Sign Off:
           </h1>
           <h3 className='font-kalam text-sx '>
-            { sign_off }
-          </h3>
-        </div>
-
-        {/* Date */}
-        <div className='flex flex-row align-middle items-center text-center text-backblack pb-2'>
-          <h1 className='pr-2 font-quicksand font-extrabold text-sm'>
-            Date Created:
-          </h1>
-          <h3 className='font-kalam text-xs'>
-            { date_created }
+            { paymentData.sign_off }
           </h3>
         </div>
 
         {/* Buttons */}
         <div className='flex flex-row justify-around items-center align-middle w-full'>
-          {/* Update */}
+          {/* New */}
           <Link 
-            href=""
+            href="/home/feenotes/add"
             className='bg-buttontext text-buttonback hover:bg-buttonback hover:text-buttontext font-kalam text-xs px-5 py-2 rounded-2xl'
           >
             Record New Payment

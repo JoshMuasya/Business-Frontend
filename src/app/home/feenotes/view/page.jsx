@@ -64,9 +64,6 @@ const page = () => {
     setFilteredPayments(paymentData)
   };
 
-  console.log(paidPayments)
-  console.log(unpaidPayments)
-
   return (
     <div className='w-full mt-28 p-5 flex flex-col justify-center align-middle items-center text-center'>
       <div className='font-kalam font-bold text-m pb-8'>
@@ -134,18 +131,6 @@ const page = () => {
                     className='bg-buttontext text-buttonback hover:bg-buttonback hover:text-buttontext font-kalam text-xs px-5 py-2 mr-2 rounded-2xl'
                   >
                     View
-                  </Link>
-                  <Link
-                    href={`/home/feenotes/update/${payment.id}`}
-                    className='bg-buttontext text-buttonback hover:bg-buttonback hover:text-buttontext font-kalam text-xs px-5 py-2 mr-2 rounded-2xl'
-                  >
-                    Update
-                  </Link>
-                  <Link
-                    href=""
-                    className='bg-buttontext text-buttonback hover:bg-buttonback hover:text-buttontext font-kalam text-xs px-5 py-2 mr-2 rounded-2xl'
-                  >
-                    Delete
                   </Link>
                 </div>
               </div>
