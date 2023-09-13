@@ -10,6 +10,8 @@ import EmailIcon from '@mui/icons-material/Email';
 import PasswordIcon from '@mui/icons-material/Password';
 import PersonIcon from '@mui/icons-material/Person';
 
+import Cookies from "js-cookie";
+
 export default function Home() {
 
   const router = useRouter();
@@ -31,7 +33,30 @@ export default function Home() {
       });
 
       if (response.ok) {
-        console.log('Logged in')
+        // Get athentication token
+        const data = await response.json();
+        const authToken = data.token
+
+        if (authToken) {
+          // Save authentication as an HTTP-only token
+          Cookies.set('authToken', authToken, {
+            httpOnly: true,
+            secure: true
+          })
+
+          const token = Cookies.get('authToken')
+
+          console.log("Token", token)
+
+          if (token) {
+            console.log("Token was saved", token)
+          } else {
+            console.log("No token was saved")
+          }
+        } else {
+          console.log("Auth Token is Empty")
+        }
+
         router.push('/login')
       } else if (response.status === 417) {
         console.log('Passwords do not match');
@@ -92,7 +117,7 @@ export default function Home() {
               type="text" 
               id="username" 
               className="dark:text-gray-900 text-xs sm:text-sm rounded-lg focus:ring-blue-500 block w-full pl-8 sm:pl-10 p-2 sm:p-2.5 border-darkgray placeholder-gray text-gray" 
-              placeholder="name@digimatic.com" 
+              placeholder="Name" 
               value = {username}
               onChange={(e) => setUsername(e.target.value)}
             />

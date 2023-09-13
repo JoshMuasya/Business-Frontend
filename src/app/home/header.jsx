@@ -1,11 +1,40 @@
 "use client"
 
-import React from 'react';
+import React, { useState } from 'react';
 
 import Link from 'next/link';
 import Image from 'next/image';
 
+import Cookies from 'js-cookie';
+
+import useAuth from './auth';
+
 const Header = () => {
+
+    const { authenticated, username } = useAuth();
+    const [isLoading, setIsLoading] = useState(true);
+    const [user, setUser] = useState('')
+
+    setTimeout(() => {
+        setIsLoading(false);
+        console.log('Finished loading', isLoading);
+
+        if (!isLoading) {
+            console.log('Auth', authenticated)
+            if(!authenticated) {
+                window.location.href = '/login';
+            } else {
+                setUser(username)
+            }
+        }
+    }, 3000)
+
+    // Handle Logout
+    const handleLogout = () => {
+        Cookies.remove('authToken');
+        window.location.href = '/login';
+    };
+
   return (
     <div>
         {/* Nav */}
@@ -35,12 +64,15 @@ const Header = () => {
             <div className='flex flex-row justify-end w-full md:w-fit'>
                 {/* Username */}
                 <h1 className='text-sm md:text-ml font-kalam pr-1 md:pr-2'>
-                Josh
+                    {user}
                 </h1>
 
                 {/* Logout */}
-                <h1 className='text-sm md:text-ml font-kalam pl-1 md:pl-2'>
-                LOGOUT
+                <h1 
+                    className='text-sm md:text-ml font-kalam pl-1 md:pl-2 cursor-pointer'
+                    onClick={handleLogout}
+                >
+                    LOGOUT
                 </h1>
             </div>
             </div>        

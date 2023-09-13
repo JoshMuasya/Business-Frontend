@@ -3,21 +3,30 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import EmailIcon from '@mui/icons-material/Email';
 import PasswordIcon from '@mui/icons-material/Password';
+
+import { LoadingButton } from '@mui/lab';
+
+import Cookies from "js-cookie";
 
 export default function Home() {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [pageLoad, setPageLoad] = useState(false)
 
   const router = useRouter();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+
+    setIsLoading(true);
+    setPageLoad(true)
 
     try {
       const response = await fetch('http://127.0.0.1:8000/login', {
@@ -27,8 +36,10 @@ export default function Home() {
       });
 
       if (response.ok) {
-        console.log('Logged in')
-        router.push('/home')
+        const data = await response.json();
+
+        Cookies.set('authToken', data.token, { secure: true });
+
       } else if (response.status === 404) {
         console.log('Email Not Found');
         setError("Email Not Found")
@@ -45,8 +56,15 @@ export default function Home() {
     } catch (error) {
       console.error('Login error:', error);
       setError("Try Again");
+    } finally {
+      setIsLoading(false);
+      setPageLoad(false)
+
+      if (!error) {
+        window.location.href = '/home';
+      }
     }
-  }
+  };
 
   return (
     <main className='flex flex-wrap justify-center align-middle flex-col text-center content-center p-3 sm:p-5'>
@@ -107,14 +125,19 @@ export default function Home() {
           </div>
 
           <div className="pt-6 sm:pt-6">
-            <button 
+            <LoadingButton             
               type="submit"
+              onClick={handleLogin}
               className=
-              "bg-backblack text-white rounded-md sm:rounded-xl h-fit w-fit duration-300 hover:bg-buttontext hover:text-buttonback hover:duration-300">
+              "bg-backblack text-white rounded-md sm:rounded-xl h-fit w-fit duration-300 hover:bg-buttontext hover:text-buttonback hover:duration-300"
+
+              loadingPosition="start" 
+              loading={isLoading}
+            >
               <p className="font-quicksand font-semibold text-sm sm:text-m px-14 py-1">
                 LOGIN
               </p>
-            </button>
+            </LoadingButton>
           </div>
         </form>
 

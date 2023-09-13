@@ -1,6 +1,6 @@
 "use client"
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 
 import NoteIcon from '@mui/icons-material/Note';
@@ -8,8 +8,32 @@ import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
 
+import useAuth from './auth';
+import { useRouter } from 'next/navigation'
 
 const page = () => {
+
+  const { authenticated, username } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState('')
+
+  setTimeout(() => {
+    setIsLoading(false);
+    console.log('Finished loading', isLoading);
+
+    if (!isLoading) {
+      console.log('Auth', authenticated)
+      if(!authenticated) {
+        window.location.href = '/login';
+        return null
+      } else {
+        setUser(username)
+      }
+    }
+  }, 3000)
+
+  console.log(user)
+
   return (
     <div>
       {/* Main */}
@@ -35,24 +59,28 @@ const page = () => {
 
             {/* Right */}
             <div>
-              <div className='bg-thistle hover:bg-buttontext rounded-xl md:rounded-2xl l:rounded-3xl h-fit md:h-40 w-48 md:w-56 l:w-64 flex flex-col justify-center align-middle items-center text-m hover:text-s p-6 md:p-0'>
+              <Link 
+                href='/home/financialstatements'
+                className='bg-thistle hover:bg-buttontext rounded-xl md:rounded-2xl l:rounded-3xl h-fit md:h-40 w-48 md:w-56 l:w-64 flex flex-col justify-center align-middle items-center text-m hover:text-s p-6 md:p-0'
+              >
                 {/* Title */}
                 <div>
                   <h1 className='text-backblack hover:text-buttonback font-kalam font-bold'>
-                    PAYMENTS
+                    FINANCIAL
                   </h1>
 
                   <h1 className='text-backblack hover:text-buttonback font-kalam font-bold'>
-                    HISTORY
+                    STATEMENT
                   </h1>
                 </div>
 
                 {/* Icon */}
-                <ReceiptLongIcon 
+                <RequestQuoteIcon
                   className='w-10 h-10 text-backblack'
                 />
-              </div>
+              </Link>
             </div>
+
           </div>
 
           {/* Middle */}
@@ -73,7 +101,7 @@ const page = () => {
             </Link>
 
             {/* Right */}
-            <div>
+            <Link href="/home/receipts">
               <div className='bg-thistle hover:bg-buttontext rounded-xl md:rounded-2xl l:rounded-3xl h-fit md:h-40 w-48 md:w-56 l:w-64 flex flex-col justify-center align-middle items-center text-m hover:text-s p-6 md:p-0'>
                 {/* Title */}
                 <h1 className='text-backblack hover:text-buttonback font-kalam font-bold'>
@@ -85,43 +113,7 @@ const page = () => {
                   className='w-10 h-10 text-backblack'
                 />
               </div>
-            </div>
-          </div>
-
-          {/* Bottom */}
-          <div className='w-3/4 h-3/5 flex flex-col md:flex-row justify-around align-middle items-center pt-5'>
-            <div className='bg-thistle hover:bg-buttontext rounded-xl md:rounded-2xl l:rounded-3xl h-fit md:h-40 w-48 md:w-56 l:w-64 flex flex-col justify-center align-middle items-center text-m hover:text-s p-6 md:p-0 mb-3 md:mb-0'>
-              {/* Title */}
-              <h1 className='text-backblack hover:text-buttonback font-kalam font-bold'>
-                INVOICES
-              </h1>
-
-              {/* Icon */}
-              <ReceiptIcon 
-                className='w-10 h-10 text-backblack'
-              />
-            </div>
-
-            {/* Right */}
-            <div>
-              <div className='bg-thistle hover:bg-buttontext rounded-xl md:rounded-2xl l:rounded-3xl h-fit md:h-40 w-48 md:w-56 l:w-64 flex flex-col justify-center align-middle items-center text-m hover:text-s p-6 md:p-0'>
-                {/* Title */}
-                <div>
-                  <h1 className='text-backblack hover:text-buttonback font-kalam font-bold'>
-                    FINANCIAL
-                  </h1>
-
-                  <h1 className='text-backblack hover:text-buttonback font-kalam font-bold'>
-                    STATEMENT
-                  </h1>
-                </div>
-
-                {/* Icon */}
-                <RequestQuoteIcon
-                  className='w-10 h-10 text-backblack'
-                />
-              </div>
-            </div>
+            </Link>
           </div>
         </div>
       </div>

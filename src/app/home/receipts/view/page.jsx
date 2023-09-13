@@ -6,19 +6,19 @@ import Link from 'next/link';
 
 const page = () => {
 
-  const [feenoteData, setFeenoteData] = useState([]);
+  const [receiptData, setReceiptData] = useState([]);
   const [customerData, setCustomerData] = useState([]);
 
-  const [filteredFeenotes, setFilteredFeenotes] = useState([]);
+  const [filteredReceipt, setFilteredReceipt] = useState([]);
   const [searchInput, setSearchInput] = useState('');
   const [filtersApplied, setFilteredApplied] = useState(false);
 
   useEffect(() => {
-    const fetchFeenoteData = async () => {
+    const fetchReceiptData = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/feenote/');
+        const response = await fetch('http://127.0.0.1:8000/receipt/');
         const jsonData = await response.json();
-        setFeenoteData(jsonData);
+        setReceiptData(jsonData);
       } catch (error) {
         console.error('Error fetching data', data);
       }
@@ -34,14 +34,14 @@ const page = () => {
       }
     };
 
-    fetchFeenoteData();
+    fetchReceiptData();
     fetchCustomerData();
   }, []);
 
   useEffect(() => {
-   const filtered = feenoteData.filter((feenote) => {
+   const filtered = receiptData.filter((receipt) => {
     const correspondingCustomer = customerData.find(
-      (customer) => customer.id === feenote.customer
+      (customer) => customer.id === receipt.customer
     );
 
     if (correspondingCustomer) {
@@ -53,8 +53,8 @@ const page = () => {
     return false;
    });
    
-   setFilteredFeenotes(filtered);
-  }, [searchInput, feenoteData, customerData]);
+   setFilteredReceipt(filtered);
+  }, [searchInput, receiptData, customerData]);
 
 
   // const paidPayments = filteredPayments.filter(payment => payment.balance === 0);
@@ -67,7 +67,7 @@ const page = () => {
   return (
     <div className='w-full mt-28 p-5 flex flex-col justify-center align-middle items-center text-center'>
       <div className='font-kalam font-bold text-m pb-8'>
-        VIEW FEENOTES
+        VIEW RECEIPTS
       </div>
 
       <div className='mb-4'>
@@ -104,16 +104,16 @@ const page = () => {
       </div> */}
 
       <div className='flex flex-col sm:flex-row sm:flex-wrap justify-between w-full'>
-        {filteredFeenotes.map((feenote) => {
+        {filteredReceipt.map((receipt) => {
           // Find the corresponding customer data using customer ID
           const correspondingCustomer = customerData.find(
-            (customer) => customer.id === feenote.customer
+            (customer) => customer.id === receipt.customer
           );
 
           return (
             <div
               className='flex flex-col sm:flex-row justify-center items-center align-middle sm:pb-3 md:pb-8'
-              key={feenote.id}
+              key={receipt.id}
             >
               <div className='flex flex-col mb-5 sm:mb-0 sm:mr-5 md:mr-8 p-3 h-fit w-fit bg-thistle rounded-xl '>
                 <h1 className='text-backblack text-m font-kalam font-bold'>
@@ -123,11 +123,11 @@ const page = () => {
                   }
                 </h1>
                 <h3 className='text-backblack font-kalam font-semibold text-s pb-2'>
-                  Feenote Amount: {feenote.amount}
+                  Receipt Amount: {receipt.amount}
                 </h3>
                 <div className='flex flex-row justify-center items-center align-middle'>
                   <Link
-                    href={`/home/feenotes/view/${feenote.id}`}
+                    href={`/home/receipts/view/${receipt.id}`}
                     className='bg-buttontext text-buttonback hover:bg-buttonback hover:text-buttontext font-kalam text-xs px-5 py-2 mr-2 rounded-2xl'
                   >
                     View

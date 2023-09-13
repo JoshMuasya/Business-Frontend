@@ -2,34 +2,39 @@
 
 import React, { forwardRef, useEffect, useState } from 'react';
 
-import Link from 'next/link';
-
+import PaidIcon from '@mui/icons-material/Paid';
 import AccountBalanceIcon from '@mui/icons-material/AccountBalance';
 import CardMembershipIcon from '@mui/icons-material/CardMembership';
 import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
+import Link from 'next/link';
 
 const page = () => {
 
   const [amount, setamount] = useState('');
   const [payment_details, setpayment_details] = useState('');
   const [sign_off, setsign_off] = useState('');
+  const [amount_paid, setAmount_paid] = useState('');
 
   const [customers, setCustomers] = useState([]);
   const [customer, setCustomer] = useState('');
   const [customerName, setCustomerName] = useState('');
+  const [customersId, setCustomersId] = useState('');
 
   const [feenotes, setFeenotes] = useState([]);
-  
-  const [latestBalance, setLatestBalance] = useState(0)
 
   const [open, setOpen] = useState(false);
   const [responseStatus, setResponseStatus] = useState(null);
 
-  const [feenoteId, setFeenoteId] = useState('')
   const [showPrintButton, setShowPrintButton] = useState(false);
+  const [showPrintFeenote, setShowPrintFeenote] = useState(false)
+  const [receiptId, setReceiptId] = useState('');
+  const [feenoteId, setFeenoteId] = useState('');
+  const [showAddButton, setShowAddButton] = useState(true);
+
+  const [balance, setBalance] = useState('');
 
   useEffect(() => {
     fetch('http://127.0.0.1:8000/customer/')
@@ -43,61 +48,115 @@ const page = () => {
     .then(data => {
       setFeenotes(data);
     })
-    .catch(error => console.error('Error fetching Feenote details:', error));
+    .catch(error => console.error('Error fetching Feenotes details:', error));
   }, []);
-
-  const customersArray = feenotes.map(feenote => feenote.customer)
-
-  const isCustomer = customersArray.includes(parseInt(customer))
 
   const Alert = forwardRef(function Alert(props, ref) {
     return <MuiAlert elevation={6} ref={ref} variant='filled' {...props} />;
   });
 
-  const handleAddFeenote = async (e) => {
+  const handleAdd = async (e) => {
     e.preventDefault();
     setOpen(true);
-
+  
     try {
-      const response = await fetch('http://127.0.0.1:8000/feenote/', {
+      const response = await fetch('http://127.0.0.1:8000/receipt/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ customer, amount, payment_details, sign_off })
+        body: JSON.stringify({ customer, amount, amount_paid, payment_details, sign_off }),
       });
-
+  
       if (response.ok) {
-        setResponseStatus(response.ok)
+        const responseData = await response.json();
+        setReceiptId(responseData.id);
+        setResponseStatus(response.ok);
+        setBalance(responseData.balance);
         setShowPrintButton(true)
-
-        const responseData = await response.json()
-        setFeenoteId(responseData.id);
-
-        setamount('')
-        setpayment_details('')
-        setsign_off('')
-        setCustomer('')
-        setCustomerName('')
+        setShowAddButton(false);
       } else {
-        setResponseStatus(null)
+        setResponseStatus(false);
         setShowPrintButton(false)
+        setShowAddButton(true);
       }
     } catch (error) {
       console.error('Adding Error:', error);
+      setResponseStatus(false);
     }
-  }
+  }; 
+  
+  useEffect(() => {
+    const addFeenote = async () => {
+      try {
+        const feenoteResponse = await fetch('http://127.0.0.1:8000/feenote/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ customer, amount: balance, payment_details, sign_off }),
+        });
+
+        if (feenoteResponse.ok) {
+          const feenoteData = await feenoteResponse.json()
+          setFeenoteId(feenoteData.id)
+          setShowPrintFeenote(true)
+          setResponseStatus(feenoteResponse.ok);
+
+          setamount('');
+          setpayment_details('');
+          setsign_off('');
+          setAmount_paid('');
+          setCustomer('');
+          setCustomerName('');
+        } else {
+          setResponseStatus(null);
+          setShowPrintFeenote(false)
+        }
+      } catch (error) {
+        console.error('Feenote Adding Error:', error);
+      }
+    };
+
+    if (balance !== '') {
+      addFeenote();
+    } else {
+      setResponseStatus(null)
+    }
+  }, [balance]);
 
   const handleClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
     }
+
     setOpen(false);
   }
+
+  useEffect (() => {
+    if (customer) {
+      fetch(`http://127.0.0.1:8000/feenote/?customer=${customer}`)
+      .then(response => response.json())
+      .then(data => {
+        if(data.length > 0) {
+          const latestFeenote = data.reduce((latest, feenote) => {
+            if (!latest || feenote.created_at > latest.created_at) {
+              return feenote
+            }
+            return latest
+          });
+
+          if (latestFeenote) {
+            setamount(latestFeenote.amount)
+          }
+        } else {
+          setamount('')
+        }
+      })
+    }
+  }, [customer])
 
   return (
     <div className='flex flex-col justify-center align-middle items-center'>
       {/* Title */}
       <div className='mt-28 p-6 text-center font-kalam text-s md:text-m l:text-ml font-semibold'>
-        RECORD FEENOTES
+        GENERATE RECEIPT
       </div>
 
       {/* Body */}
@@ -116,13 +175,14 @@ const page = () => {
                 severity="success"
                 sx={{ width: "100%" }}
               >
-                The Feenote was added Successfully
+                The Receipt was added Successfully
               </Alert>
             ) : (
-              <Alert 
+              <Alert
+                onClose={handleClose}
                 severity="error"
               >
-                Failed!! The Feenote was not Added Successfully
+                Failed!! The Receipt was not Added Successfully
               </Alert>
             )
           }          
@@ -130,7 +190,7 @@ const page = () => {
 
         {/* Form */}
         <form 
-          onSubmit={handleAddFeenote} 
+          onSubmit={handleAdd} 
           className="p-5 sm:p-7 flex flex-col justify-center align-middle items-center"
         >
           {/* Customer Dropdown */}
@@ -153,7 +213,17 @@ const page = () => {
                 const selectedCustomer = customers.find(customerObj => customerObj.id === parseInt(e.target.value));
                 if (selectedCustomer) {
                   setCustomerName(selectedCustomer.first_name);
+                  setCustomersId(selectedCustomer.id)
+
+                  const associatedFeenote = feenotes.find(
+                    (feenote) => feenote.customer === customersId
+                  )
+
+                  if (associatedFeenote) {
+                    setamount(associatedFeenote.amount)
+                  }
                 } else {
+                  setamount('')
                   setCustomerName('')
                 }
               }
@@ -164,6 +234,12 @@ const page = () => {
               .filter(customerObj => {
                 const firstName = `${customerObj.first_name}`
                 return firstName.toLowerCase().includes(customer.toLowerCase())
+              })
+              .filter(customerObj => {
+                const hasFeenotes = feenotes.some(
+                  (feenote) => feenote.customer === customerObj.id
+                );
+                return hasFeenotes
               })
               .map(customerObj => (
                 <option key={customerObj.id} value={customerObj.id}>
@@ -181,6 +257,7 @@ const page = () => {
                   aria-hidden="true"
                   className="w-5 h-5 text-gray"
                   fill="currentColor"
+                  disabled={amount !== '' && amount !== 0}
                 />
               </div>
               
@@ -191,7 +268,26 @@ const page = () => {
                 placeholder="Total Amount" 
                 value={amount}
                 onChange={(e) => setamount(e.target.value)}
-                disabled = {latestBalance !== 0 && latestBalance !== null}
+              />
+            </div>
+
+            {/* Amount Paid */}
+            <div className="relative mb-4 sm:mb-6">
+              <div className="absolute inset-y-0 left-0 flex items-center pl-2 sm:pl-3 pointer-events-none">
+                <PaidIcon
+                  aria-hidden="true"
+                  className="w-5 h-5 text-gray"
+                  fill="currentColor"
+                />
+              </div>
+              
+              <input 
+                type="number" 
+                id="amountpaid" 
+                className="dark:text-gray-900 text-xs sm:text-sm rounded-lg focus:ring-blue-500 block w-full pl-8 sm:pl-10 p-2 sm:p-2.5 border-darkgray placeholder-gray text-gray" 
+                placeholder="Amount Paid"
+                value={amount_paid}
+                onChange={(e) => setAmount_paid(e.target.value)}                
               />
             </div>
           </div>
@@ -235,23 +331,35 @@ const page = () => {
           </div>
 
           <div className="w-full pt-4 sm:pt-6 flex flex-col sm:flex-row justify-around">
-            <button 
-              type="submit"
-              className=
-              "bg-backblack text-white rounded-md sm:rounded-xl h-fit w-fit duration-300 hover:bg-buttontext hover:text-buttonback hover:duration-300">
-              <p className="font-quicksand font-semibold text-sm sm:text-m px-14 py-1">
-                ADD
-              </p>
-            </button>
+            {showAddButton && (
+              <button 
+                type="submit"
+                className=
+                "bg-backblack text-white rounded-md sm:rounded-xl h-fit w-fit duration-300 hover:bg-buttontext hover:text-buttonback hover:duration-300">
+                <p className="font-quicksand font-semibold text-sm sm:text-m px-14 py-1">
+                  ADD
+                </p>
+              </button>
+            )}
 
-            {/* Print Button */}
             {showPrintButton && (
+              <Link
+                href={`/home/receipts/view/${receiptId}`}
+                className=
+                "bg-backblack text-white rounded-md sm:rounded-xl h-fit w-fit duration-300 hover:bg-buttontext hover:text-buttonback hover:duration-300">
+                <p className="font-quicksand font-semibold text-sm sm:text-m px-14 py-1">
+                  RECEIPT
+                </p>
+              </Link>
+            )}
+
+            {showPrintFeenote && (
               <Link
                 href={`/home/feenotes/view/${feenoteId}`}
                 className=
                 "bg-backblack text-white rounded-md sm:rounded-xl h-fit w-fit duration-300 hover:bg-buttontext hover:text-buttonback hover:duration-300">
                 <p className="font-quicksand font-semibold text-sm sm:text-m px-14 py-1">
-                  PRINT
+                  FEENOTE
                 </p>
               </Link>
             )}

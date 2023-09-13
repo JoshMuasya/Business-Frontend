@@ -6,7 +6,7 @@ export default function HomeLayout ({ children }) {
         <html lang="en">
             <body className="">
                 <Header />
-                { children }                                
+                    { children }                                
                 <Footer />
             </body>
         </html>
