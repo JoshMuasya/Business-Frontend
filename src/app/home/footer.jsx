@@ -2,6 +2,8 @@
 
 import React from 'react';
 
+import Link from 'next/link';
+
 import FormatListBulletedIcon from '@mui/icons-material/FormatListBulleted';
 import HomeIcon from '@mui/icons-material/Home';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
@@ -20,11 +22,14 @@ const Footer = () => {
                 </div>
 
                 {/* Home */}
-                <div className=''>
+                <Link 
+                    className=''
+                    href='/home'
+                >
                 <HomeIcon 
                     className='w-8 h-8 hover:w-10 hover:h-10 text-buttontext hover:text-lightgray'
                 />
-                </div>
+                </Link>
 
                 {/* Calendar */}
                 <div>

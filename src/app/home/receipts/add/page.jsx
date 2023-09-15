@@ -11,6 +11,8 @@ import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import Link from 'next/link';
 
+import useAuth from '../../auth';
+
 const page = () => {
 
   const [amount, setamount] = useState('');
@@ -35,6 +37,23 @@ const page = () => {
   const [showAddButton, setShowAddButton] = useState(true);
 
   const [balance, setBalance] = useState('');
+
+  const { authenticated, username } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
+
+  setTimeout(() => {
+      setIsLoading(false);
+      console.log('Finished loading', isLoading);
+
+      if (!isLoading) {
+          console.log('Auth', authenticated)
+          if(!authenticated) {
+              window.location.href = '/login';
+          } else {
+              setsign_off(username)
+          }
+      }
+  }, 3000);
 
   useEffect(() => {
     fetch('http://127.0.0.1:8000/customer/')
@@ -326,7 +345,7 @@ const page = () => {
               className="dark:text-gray-900 text-xs sm:text-sm rounded-lg focus:ring-blue-500 block w-full pl-10 sm:pl-10 p-2 sm:p-2.5 border-darkgray placeholder-gray text-gray" 
               placeholder="Sign Off"
               value={sign_off}
-              onChange={(e) => setsign_off(e.target.value)}              
+              disabled             
             />
           </div>
 
