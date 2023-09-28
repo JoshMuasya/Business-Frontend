@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 
 import Cookies from "js-cookie";
 
-export default function useAuth() {
+export default function UseAuth() {
     const [authenticated, setAuthenticated] = useState(false);
     const [username, setUserName] = useState(null);
 

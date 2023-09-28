@@ -11,7 +11,7 @@ import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
 import useAuth from './auth';
 import { useRouter } from 'next/navigation'
 
-const page = () => {
+const Page = () => {
 
   const { authenticated, username } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
@@ -125,4 +125,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page

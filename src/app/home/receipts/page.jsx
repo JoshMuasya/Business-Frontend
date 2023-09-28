@@ -7,7 +7,7 @@ import Link from 'next/link';
 import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
 import NoteIcon from '@mui/icons-material/Note';
 
-const page = () => {
+const Page = () => {
   return (
     <div className='mt-28 p-5 flex flex-col justify-center align-middle items-center text-center'>
       {/* Title */}
@@ -58,4 +58,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page

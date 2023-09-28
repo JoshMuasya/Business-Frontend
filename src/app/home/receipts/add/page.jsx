@@ -11,9 +11,9 @@ import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 import Link from 'next/link';
 
-import useAuth from '../../auth';
+import UseAuth from '../../auth';
 
-const page = () => {
+const Page = () => {
 
   const [amount, setamount] = useState('');
   const [payment_details, setpayment_details] = useState('');
@@ -38,7 +38,7 @@ const page = () => {
 
   const [balance, setBalance] = useState('');
 
-  const { authenticated, username } = useAuth();
+  const { authenticated, username } = UseAuth();
   const [isLoading, setIsLoading] = useState(true);
 
   setTimeout(() => {
@@ -389,4 +389,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page

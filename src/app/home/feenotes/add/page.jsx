@@ -11,9 +11,9 @@ import AssignmentIndIcon from '@mui/icons-material/AssignmentInd';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 
-import useAuth from '../../auth';
+import UseAuth from '../../auth';
 
-const page = () => {
+const Page = () => {
 
   const [amount, setamount] = useState('');
   const [payment_details, setpayment_details] = useState('');
@@ -33,7 +33,7 @@ const page = () => {
   const [feenoteId, setFeenoteId] = useState('')
   const [showPrintButton, setShowPrintButton] = useState(false);
 
-  const { authenticated, username } = useAuth();
+  const { authenticated, username } = UseAuth();
   const [isLoading, setIsLoading] = useState(true);
 
   setTimeout(() => {
@@ -281,4 +281,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page

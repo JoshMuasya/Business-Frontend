@@ -9,7 +9,7 @@ import NoteIcon from '@mui/icons-material/Note';
 import DynamicFeedIcon from '@mui/icons-material/DynamicFeed';
 import DeleteSweepIcon from '@mui/icons-material/DeleteSweep';
 
-const page = () => {
+const Page = () => {
   return (
     <div className='mt-28 p-5 flex flex-col justify-center align-middle items-center text-center'>
       {/* Title */}
@@ -60,4 +60,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page

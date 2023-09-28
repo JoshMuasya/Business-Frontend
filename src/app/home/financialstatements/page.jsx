@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 
 import Link from 'next/link';
 
-const page = () => {
+const Page = () => {
 
   const [customers, setCustomers] = useState([])
   const [feenotes, setFeenotes] = useState([])
@@ -166,4 +166,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page

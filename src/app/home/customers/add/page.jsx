@@ -11,7 +11,7 @@ import LocalPhoneIcon from '@mui/icons-material/LocalPhone';
 import Snackbar from '@mui/material/Snackbar';
 import MuiAlert from '@mui/material/Alert';
 
-const page = () => {
+const Page = () => {
 
   const [open, setOpen] = useState(false);
   const [responseStatus, setResponseStatus] = useState(null);
@@ -209,4 +209,4 @@ const page = () => {
   )
 }
 
-export default page
+export default Page
