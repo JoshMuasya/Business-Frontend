@@ -160,7 +160,7 @@ export default function Home() {
             <div className="sm:pr-12">
               <Link href="/signup">
                 <p className="text-backblack text-xs sm:text-s">
-                  Don't have an account?
+                  Dont have an account?
                 </p>
               </Link>
             </div>
